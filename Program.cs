@@ -7,7 +7,7 @@ namespace async_project
     class Program
     {
 
-       public static List<string> runnersPodium = new List<string>();
+       public static List<string> runnersClassement = new List<string>();
        public static List<string> runnersName = new List<string>();
 
         static async Task Main(string[] args)
@@ -15,7 +15,7 @@ namespace async_project
             runnersName.Add("Hugo");
             runnersName.Add("Rémy");
             runnersName.Add("Olivier");
-            await RacePodium(runnersName);
+            await RacePodiumCancellable(runnersName);
         }
 
         static async Task Runner(string runnerName)
@@ -29,7 +29,7 @@ namespace async_project
             int arrivalPhase = rand.Next(8, 16) * 1000;
             await Task.Delay(arrivalPhase);
             Console.WriteLine($"{runnerName} est arrivé");
-            runnersPodium.Add(runnerName);
+            runnersClassement.Add(runnerName);
         }
 
         static async Task Race(List<string> runnersNames)
@@ -62,17 +62,29 @@ namespace async_project
                 runTasks.Add(runTask);
             }
 
-            for (int i = 0; i < runTasks.Count; i++)
+            foreach (Task runTask in runTasks)
             {
-                await runTasks[i];
+                await runTask;
             }
 
             Console.WriteLine("La course est terminée");
 
-            for (int i = 0; i < runnersPodium.Count; i++)
+            for (int i = 0; i < runnersClassement.Count; i++)
             {
-                Console.WriteLine($"{runnersPodium[i]} est arrivé en {i + 1}e position");
+                Console.WriteLine($"{runnersClassement[i]} est arrivé en {i + 1}e position");
             }
+        }
+
+        static async Task RacePodiumCancellable(List<string> runnersNames)
+        {
+            Task raceTask = RacePodium(runnersName);
+            Task stopTask = StopCourse();
+        }
+
+        static async Task StopCourse()
+        {
+            while (Console.ReadKey().Key != ConsoleKey.C) Console.Write("\b");
+            Environment.Exit(0);
         }
     }
 }
